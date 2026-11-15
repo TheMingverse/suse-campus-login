@@ -46,4 +46,5 @@ jobs:
             build/macos-release/*
             build/macos-app-report.json
             build/macos-window.png
+            build/macos-consent.txt
           if-no-files-found: warn

@@ -6,7 +6,7 @@ Connect to the campus network and let the app handle login.
 
 For the **Yibin campus of Sichuan University of Science & Engineering**. Supports campus Ethernet, including USB Ethernet adapters, and `SUSE_Hostel` / `SUSE` Wi-Fi on **64-bit Windows 10/11**.
 
-**[Download for Windows](https://github.com/tsiskjsjs532-hash/suse-campus-login/releases/latest)** · [v1.1.3 release notes](docs/releases/v1.1.3.md#user-content-english)
+**[Download for Windows](https://github.com/TheMingverse/suse-campus-login/releases/latest)** · [v1.1.3 release notes](docs/releases/v1.1.3.md#user-content-english)
 
 ## Get started
 
@@ -17,6 +17,16 @@ For the **Yibin campus of Sichuan University of Science & Engineering**. Support
 Windows protects the password stored on your PC.
 
 ![Settings window](docs/settings-window.png)
+
+## Mac beta
+
+For macOS 15 or later, with separate Apple Silicon and Intel downloads.
+
+[Download the Mac beta](https://github.com/TheMingverse/suse-campus-login/releases/tag/v1.2.0-macos-beta.1)
+
+Open the DMG, drag `SUSECampusLogin.app` to Applications, then open it and save your account and service. Allow Location Services to identify campus Wi-Fi. Closing the window keeps the app in the menu bar.
+
+[Mac guide — Chinese](docs/macos.md)
 
 ## Everyday use
 
@@ -42,7 +52,7 @@ Windows protects the password stored on your PC.
 | Already online; service list cannot refresh | Keep your selection and update the list when login is needed again |
 | Account or password rejected | Check your account, password and service, then click 保存并测试; use 打开官方登录页 if manual action is needed |
 | App does not start with Windows | Enable 开机自动运行 and save; check that it is enabled in Task Manager's startup apps |
-| Other connection problems | Click 连接诊断, copy the report and include the window message in an [issue](https://github.com/tsiskjsjs532-hash/suse-campus-login/issues) |
+| Other connection problems | Click 连接诊断, copy the report and include the window message in an [issue](https://github.com/TheMingverse/suse-campus-login/issues) |
 
 Include your campus, Windows version and connection type when reporting a problem. Do not send passwords; hide your account in screenshots.
 

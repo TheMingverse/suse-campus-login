@@ -6,7 +6,7 @@
 
 面向**四川轻化工大学宜宾校区**，支持校园网线（含 USB 转网口）、`SUSE_Hostel` 和 `SUSE`，适用于 **Windows 10/11 64 位**。
 
-**[下载 Windows 版](https://github.com/tsiskjsjs532-hash/suse-campus-login/releases/latest)** · [v1.1.3 更新说明](docs/releases/v1.1.3.md)
+**[下载 Windows 版](https://github.com/TheMingverse/suse-campus-login/releases/latest)** · [v1.1.3 更新说明](docs/releases/v1.1.3.md)
 
 ## 开始使用
 
@@ -17,6 +17,16 @@
 密码由 Windows 在本机保护。
 
 ![设置窗口](docs/settings-window.png)
+
+## Mac 测试版
+
+支持 macOS 15 及以上，提供 Apple 芯片和 Intel 两种版本。
+
+[下载 Mac 测试版](https://github.com/TheMingverse/suse-campus-login/releases/tag/v1.2.0-macos-beta.1)
+
+打开下载的 DMG，将 `SUSECampusLogin.app` 拖到“应用程序”，打开后填写账号、选择服务并保存。读取校园 Wi-Fi 名称时，请允许定位服务；关闭窗口后，可从顶部菜单栏重新打开设置。
+
+[Mac 使用说明](docs/macos.md)
 
 ## 日常使用
 
@@ -42,7 +52,7 @@
 | 当前已在线，暂无法刷新服务列表 | 保留原选择，等下次需要登录时更新即可 |
 | 账号或密码未通过认证 | 检查账号、密码和上网服务，再点击“保存并测试”；需手动处理时打开官方登录页 |
 | 开机后没有自动运行 | 勾选“开机自动运行”并保存；检查任务管理器中的启动应用是否启用 |
-| 其他连接问题 | 点击“连接诊断”，将复制的报告和窗口提示发到 [Issues](https://github.com/tsiskjsjs532-hash/suse-campus-login/issues) |
+| 其他连接问题 | 点击“连接诊断”，将复制的报告和窗口提示发到 [Issues](https://github.com/TheMingverse/suse-campus-login/issues) |
 
 反馈时附上校区、Windows 版本和连接方式，请不要发送密码，截图遮住账号。
 

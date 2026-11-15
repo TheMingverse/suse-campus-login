@@ -24,6 +24,29 @@ def main():
         process = subprocess.Popen([str(executable),'--smoke-report',str(report)],env=env)
         try:
             time.sleep(2)
+            # Consent only to this ephemeral CI machine's local-network test dialog.
+            # Never change Gatekeeper, location, notification or user-machine settings.
+            consent = '''tell application "System Events"
+                set resultText to ""
+                repeat with appName in {"UserNotificationCenter", "CoreServicesUIAgent"}
+                    if exists process appName then
+                        tell process appName
+                            repeat with w in windows
+                                try
+                                    set contentsText to (value of every static text of w) as text
+                                    if contentsText contains "local networks" then
+                                        click button "Allow" of w
+                                        set resultText to resultText & "local-network-test-consent "
+                                    end if
+                                end try
+                            end repeat
+                        end tell
+                    end if
+                end repeat
+                return resultText
+            end tell'''
+            consent_result=subprocess.run(['osascript','-e',consent],capture_output=True,text=True,timeout=10)
+            Path('build/macos-consent.txt').write_text(consent_result.stdout+consent_result.stderr,encoding='utf-8')
             screenshot = subprocess.run(['screencapture','-x','build/macos-window.png'],capture_output=True)
             process.wait(timeout=45)
             assert process.returncode==0,process.returncode

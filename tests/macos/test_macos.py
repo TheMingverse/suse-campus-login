@@ -95,6 +95,15 @@ class MacIntegrationTests(unittest.TestCase):
             adapter=BoundAdapter(c)
             self.assertEqual(adapter.poolmanager.connection_pool_kw['source_address'],('10.1.1.2',0))
             adapter.close()
+            from types import SimpleNamespace
+            import requests
+            session=requests.Session();session.trust_env=False;session.adapters.clear()
+            session.mount('http://',BoundAdapter(SimpleNamespace(ready=True,ipv4='127.0.0.1',interface_index=index)))
+            try:
+                response=session.get(f'http://127.0.0.1:{server.server_port}/',timeout=3)
+                self.assertEqual(response.content,b'synthetic-ok')
+            finally:
+                session.close()
         finally:
             server.shutdown();server.server_close();thread.join()
 

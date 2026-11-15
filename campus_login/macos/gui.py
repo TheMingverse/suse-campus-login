@@ -41,7 +41,8 @@ class Delegate(F.NSObject):
         self.engine = LoginEngine((lambda: NetworkSnapshot()) if smoke else network_snapshot,
                                   NetworkContext, self.events.put)
         self.engine.update_settings(self.settings)
-        self.backend = None if smoke else NotificationBackend()
+        self.backend = None if smoke else NotificationBackend(
+            lambda allowed: self.events.put(('notification_permission', allowed)))
         self.notices = NotificationController(
             self.backend.send if self.backend else lambda *a: False,
             self.backend.remove if self.backend else lambda: None,
@@ -197,6 +198,8 @@ class Delegate(F.NSObject):
                 self.notices.observe(event)
             elif isinstance(event, str):
                 self.report(event)
+            elif isinstance(event, tuple) and event[0] == 'notification_permission' and not event[1]:
+                self.hint.setStringValue_('系统通知未获允许；需要提醒时，可到系统设置 → 通知中开启。')
 
     @objc.python_method
     def alert(self, text):

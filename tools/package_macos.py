@@ -39,6 +39,7 @@ app = BUNDLE(coll, name={name + '.app'!r}, bundle_identifier={BUNDLE_ID!r},
         'CFBundleVersion': '12001', 'LSMinimumSystemVersion': '15.0', 'LSUIElement': True,
         'NSLocationUsageDescription': '用于识别当前校园 Wi-Fi，以便自动登录。',
         'NSLocationWhenInUseUsageDescription': '用于识别当前校园 Wi-Fi，以便自动登录。',
+        'NSLocalNetworkUsageDescription': '用于访问学校校园网认证服务器，完成登录。',
         'NSHighResolutionCapable': True}})
 ''', encoding='utf-8')
     run(sys.executable, '-m', 'PyInstaller', '--noconfirm', '--clean',

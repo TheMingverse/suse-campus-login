@@ -32,10 +32,11 @@ def startup_status():
 
 
 class NotificationBackend:
-    def __init__(self):
+    def __init__(self, on_permission=None):
         import UserNotifications as UN
         self.center = UN.UNUserNotificationCenter.currentNotificationCenter()
         self.allowed = False
+        self.on_permission = on_permission
 
     def authorize(self):
         import UserNotifications as UN
@@ -45,6 +46,8 @@ class NotificationBackend:
 
     def _authorized(self, allowed, error):
         self.allowed = bool(allowed) and error is None
+        if self.on_permission:
+            self.on_permission(self.allowed)
 
     def send(self, message, title):
         import UserNotifications as UN
