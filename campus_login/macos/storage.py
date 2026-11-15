@@ -17,12 +17,15 @@ class Keychain:
     def __init__(self, keychain=None):
         self.keychain = keychain
 
-    def query(self, account):
+    def query(self, account, *, adding=False):
         import Security as S
         q = {S.kSecClass: S.kSecClassGenericPassword, S.kSecAttrService: BUNDLE_ID,
              S.kSecAttrAccount: account}
         if self.keychain is not None:
-            q[S.kSecUseKeychain] = self.keychain
+            if adding:
+                q[S.kSecUseKeychain] = self.keychain
+            else:
+                q[S.kSecMatchSearchList] = [self.keychain]
         return q
 
     def put(self, account, password):
@@ -33,7 +36,7 @@ class Keychain:
         q = self.query(account)
         status = S.SecItemUpdate(q, {S.kSecValueData: value})
         if status == S.errSecItemNotFound:
-            status, _ = S.SecItemAdd(dict(q, **{} ) | {S.kSecValueData: value}, None)
+            status, _ = S.SecItemAdd(self.query(account, adding=True) | {S.kSecValueData: value}, None)
         if status != S.errSecSuccess:
             raise OSError('无法将密码保存到钥匙串')
 

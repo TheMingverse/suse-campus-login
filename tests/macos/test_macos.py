@@ -87,7 +87,7 @@ class MacIntegrationTests(unittest.TestCase):
             conn.connect()
             self.assertEqual(conn.sock.getsockopt(socket.IPPROTO_IP,IP_BOUND_IF),index)
             conn.request('GET','/')
-            self.assertEqual(conn.getresponse().read(),b'synthetic-ok');conn.close()
+            self.assertEqual(conn.getresponse().data,b'synthetic-ok');conn.close()
             bad=BoundConnection('127.0.0.1',server.server_port,timeout=1,source_address=('127.0.0.1',0),
                                 socket_options=[(socket.IPPROTO_IP,IP_BOUND_IF,999999)])
             with self.assertRaises(Exception): bad.connect()
@@ -103,7 +103,7 @@ class MacIntegrationTests(unittest.TestCase):
         from campus_login.macos.storage import Keychain
         with tempfile.TemporaryDirectory() as temp:
             password=b'synthetic-keychain-password'
-            status,keychain=S.SecKeychainCreate(str(Path(temp)/'test.keychain'),len(password),password,False,None,None)
+            status,keychain=S.SecKeychainCreate(str(Path(temp)/'test.keychain').encode(),len(password),password,False,None,None)
             self.assertEqual(status,0)
             try:
                 store=Keychain(keychain)

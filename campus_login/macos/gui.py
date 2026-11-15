@@ -187,7 +187,8 @@ class Delegate(F.NSObject):
                 if event.generation is not None and event.generation != self.engine.generation:
                     continue
                 text = event.text.replace('Windows 11', 'macOS').replace('Windows', '系统')
-                if event.code == 'wifi_error':
+                if (event.code == 'wifi_error' or (event.code == 'outside'
+                        and self.engine.snapshot and self.engine.snapshot.wifi_unavailable)):
                     text = '无法读取校园 Wi-Fi 名称，请在系统设置 → 隐私与安全性 → 定位服务中允许本应用。'
                 self.status.setStringValue_(text)
                 if event.code != self.last_log:
@@ -311,7 +312,6 @@ class Delegate(F.NSObject):
         self.check_(None)
         assert not self.engine.paused
         rect = self.window.frame()
-        screenshot = A.CGWindowListCreateImage if hasattr(A, 'CGWindowListCreateImage') else None
         Path(self.smoke).write_text(json.dumps(dict(
             window_visible=True, menu_items=4, close_keeps_app=True,
             pause_resume=True, engine_stopped=True, version=VERSION,

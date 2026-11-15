@@ -32,7 +32,8 @@ jobs:
       - name: Shared authentication and engine tests
         run: python -m unittest discover -s tests -p 'test_portal.py' -v && python -m unittest discover -s tests -p 'test_engine.py' -v && python -m unittest discover -s tests -p 'test_network_storage.py' -v
       - name: Mac logic and native integration
-        run: python -m unittest discover -s tests/macos -v
+        timeout-minutes: 4
+        run: python -u -m unittest discover -s tests/macos -v
       - name: Build app and distributions
         run: python tools/package_macos.py
       - name: Packaged UI smoke test
