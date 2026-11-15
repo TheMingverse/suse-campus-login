@@ -66,7 +66,7 @@ class Delegate(F.NSObject):
             self.window.makeKeyAndOrderFront_(None)
             A.NSApp.activateIgnoringOtherApps_(True)
             F.NSTimer.scheduledTimerWithTimeInterval_target_selector_userInfo_repeats_(
-                3.0, self, 'smokeFinish:', None, False)
+                15.0, self, 'smokeFinish:', None, False)
         else:
             self.location = CL.CLLocationManager.alloc().init()
             self.location.setDelegate_(self)

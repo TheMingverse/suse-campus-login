@@ -6,7 +6,7 @@
 
 1. 在[下载页](https://github.com/TheMingverse/suse-campus-login/releases/tag/v1.2.0-macos-beta.1)选择对应机型的 DMG：Apple 芯片选 `arm64`，Intel 选 `x86_64`。机型可在苹果菜单的“关于本机”查看。
 2. 打开 DMG，将 `SUSECampusLogin.app` 拖入“应用程序”，再打开应用。若系统阻止首次打开，到“系统设置 → 隐私与安全性”查看并确认。
-3. 连接校园 Wi-Fi 或网线，填写自己的账号密码、选择服务，点击“保存并测试”。识别 Wi-Fi 名称时请允许定位服务。
+3. 连接校园 Wi-Fi 或网线，填写自己的账号密码、选择服务，点击“保存并测试”。识别 Wi-Fi 名称时请允许定位服务；访问学校认证页面时请允许本地网络。
 
 密码保存在 Mac 钥匙串中。
 

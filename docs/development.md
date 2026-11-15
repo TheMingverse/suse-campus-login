@@ -131,3 +131,7 @@ This is not an official university client and does not bypass account, billing o
 ## Field feedback update · 2026-11-14
 
 The user reported that classroom networking and Ethernet work in their own environment. No specific classroom, adapter model or step-by-step authentication record was supplied. Historical records retain their original dates; Zigong campus and other PCs still require separate checks.
+
+## Mac development
+
+[Mac 开发与验证](macos-development.md)

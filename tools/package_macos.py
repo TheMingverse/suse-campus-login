@@ -49,6 +49,9 @@ app = BUNDLE(coll, name={name + '.app'!r}, bundle_identifier={BUNDLE_ID!r},
     shutil.copy2(ROOT/'THIRD_PARTY_NOTICES.md', resources)
     licenses = resources/'licenses'
     licenses.mkdir(exist_ok=True)
+    import builtins
+    builtins.license._Printer__setup()
+    (licenses/'Python-LICENSE.txt').write_text('\n'.join(builtins.license._Printer__lines), encoding='utf-8')
     for dist in importlib.metadata.distributions():
         for f in dist.files or []:
             if f.name.lower().startswith(('license', 'copying')) and '..' not in f.parts:
