@@ -299,6 +299,44 @@ class Delegate(F.NSObject):
         self.alert(text + '\n\n诊断结果已复制。')
 
     def smokeFinish_(self, timer):
+        from ..models import ServiceOption
+        # Exercise the native service picker with the same events as the worker.
+        self.engine.set_paused(True)
+        self.engine.thread.join(timeout=0.1)
+        sequence = self.engine.catalog_sequence
+        event = ServiceCatalogEvent(self.engine.generation, sequence, self.engine.snapshot,
+                                    options=(ServiceOption('新服务'),), outcome='ready', text='合成列表')
+        previous = self.service.titleOfSelectedItem()
+        self.events.put(event)
+        self.tick_(None)
+        assert self.service.titleOfSelectedItem() == previous
+        self.service.selectItemWithTitle_('新服务')
+        self.events.put(event)
+        self.tick_(None)
+        assert self.service.titleOfSelectedItem() == '新服务'
+        self.engine.set_paused(False)
+        self.events.put(event)  # Obsolete generation must not replace a selection.
+        self.tick_(None)
+        assert self.service.titleOfSelectedItem() == '新服务'
+        bounds = self.window.contentView().bounds()
+        for control in self.window.contentView().subviews():
+            frame = control.frame()
+            assert frame.origin.x >= 0 and frame.origin.y >= 0
+            assert frame.origin.x + frame.size.width <= bounds.size.width
+            assert frame.origin.y + frame.size.height <= bounds.size.height
+        startup = {}
+        try:
+            startup['before'] = startup_status()
+            try:
+                startup['registered'] = set_autostart(True)
+            except OSError:
+                startup['registration_requires_system_approval'] = True
+        finally:
+            try:
+                startup['after_cleanup'] = set_autostart(False)
+            except OSError:
+                startup['cleanup_status'] = startup_status()
+        assert all(isinstance(value, (int, bool)) for value in startup.values())
         self.engine.stop()
         self.engine.thread.join(timeout=5)
         assert not self.engine.thread.is_alive()
@@ -315,7 +353,9 @@ class Delegate(F.NSObject):
         Path(self.smoke).write_text(json.dumps(dict(
             window_visible=True, menu_items=4, close_keeps_app=True,
             pause_resume=True, engine_stopped=True, version=VERSION,
-            frame=[rect.size.width, rect.size.height], controls=15)), encoding='utf-8')
+            frame=[rect.size.width, rect.size.height], controls=len(self.window.contentView().subviews()),
+            service_selection_preserved=True, stale_service_ignored=True,
+            controls_within_window=True, startup=startup)), encoding='utf-8')
         self.quit_(None)
 
     def quit_(self, sender):
