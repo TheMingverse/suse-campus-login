@@ -1,0 +1,12 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+ android:id="@+id/widget_root" android:layout_width="match_parent" android:layout_height="match_parent"
+ android:orientation="horizontal" android:gravity="center_vertical" android:padding="4dp" android:background="@drawable/widget_background">
+ <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+  <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="SUSE Campus Login"
+   android:textSize="12sp" android:textStyle="bold" android:maxLines="1" android:ellipsize="end" android:textColor="@color/widget_text" />
+  <TextView android:id="@+id/widget_result" android:layout_width="match_parent" android:layout_height="wrap_content"
+   android:text="尚未检查，点击登录" android:textSize="10sp" android:maxLines="2" android:ellipsize="end" android:textColor="@color/widget_text" />
+ </LinearLayout>
+ <ImageView android:layout_width="24dp" android:layout_height="24dp" android:layout_marginStart="4dp"
+ android:src="@drawable/ic_campus" android:contentDescription="一键登录" />
+</LinearLayout>

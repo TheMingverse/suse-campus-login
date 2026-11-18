@@ -18,3 +18,16 @@ settings.tmp
 .DS_Store
 Thumbs.db
 
+# Android local tools, machine paths and generated output
+.gradle/
+.kotlin/
+local.properties
+*.jks
+*.keystore
+*.p12
+*.p8
+*.pk8
+keystore.properties
+signing.properties
+*.signing.properties
+

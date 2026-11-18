@@ -1,0 +1,12 @@
+{
+  "source": "https://android.googlesource.com/platform/tools/apksig",
+  "commit": "184702d9d18877edf9e5296c4e191cf0aa2b5fbb",
+  "certificateSha256": "fb5dbd3c669af9fc236c6991e6387b7f11ff0590997f22d0f5c74ff40e04fca8",
+  "files": {
+    "golden-aligned-v1v2v3-out.apk": "ba7828ba42a3b68bd3acff78773e41d6a62aabe6317538671441c568748d9cd7",
+    "golden-aligned-v2v3-out.apk": "0a91326b8ac257087be4cc73d25d3832369e4e7b1e7a3d53b4bbd9ea029a24bb",
+    "v2-only-with-rsa-pkcs1-sha256-2048.apk": "b11e85df088c3474b2d0f266f1a4863744162fc44b4b53a87d3432f03dce25c6",
+    "v3-only-with-rsa-pkcs1-sha256-2048.apk": "11394d65bfd43bb7e6a234dccaa6b6a18078c5d57fc8f3d17a5159332e0c4455",
+    "v3-only-with-rsa-pkcs1-sha256-3072-sig-does-not-verify.apk": "3ea8e1cad588708e48f0a14e04cd96e55fa9f1a40e4c71e4a3c5d00ce0521fbe"
+  }
+}

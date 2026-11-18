@@ -1,0 +1,23 @@
+SUSE Campus Login Android — third-party components
+
+This file describes third-party components and does not assign a license to the project itself.
+
+Kotlin, kotlinx.coroutines and kotlinx.serialization — JetBrains and contributors
+https://kotlinlang.org/
+Apache License 2.0; see licenses/Apache-2.0.txt.
+
+AndroidX and Jetpack Compose — The Android Open Source Project and contributors
+https://developer.android.com/jetpack/androidx
+Apache License 2.0; see licenses/Apache-2.0.txt and bundled META-INF notices.
+
+OkHttp and Okio — Square, Inc. and contributors
+https://square.github.io/okhttp/
+https://square.github.io/okio/
+Apache License 2.0; see licenses/Apache-2.0.txt.
+OkHttp public suffix data includes its own bundled NOTICE.
+
+jsoup — Jonathan Hedley and contributors
+https://jsoup.org/
+MIT License; see licenses/jsoup-MIT.txt.
+
+JUnit, MockWebServer and AndroidX Test are test dependencies, excluded from the application runtime.

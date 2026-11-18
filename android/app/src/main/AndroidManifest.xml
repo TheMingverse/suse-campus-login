@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <application
+        android:name=".CampusApplication"
+        android:allowBackup="false"
+        android:fullBackupContent="@xml/backup_rules"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:networkSecurityConfig="@xml/network_security_config"
+        android:label="SUSE 校园网"
+        android:icon="@drawable/ic_campus"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Campus">
+        <activity android:name=".MainActivity" android:exported="true" android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".update.UpdateActivity" android:exported="false" />
+        <provider android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.updates" android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/update_file_paths" />
+        </provider>
+        <activity android:name=".QuickLoginActivity" android:exported="false"
+            android:launchMode="singleTask" android:taskAffinity="io.github.themingverse.susecampus.quick"
+            android:excludeFromRecents="true" />
+        <receiver android:name=".SmallLoginWidget" android:exported="false" android:label="SUSE 登录 · 1×1">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_small" />
+        </receiver>
+        <receiver android:name=".WideLoginWidget" android:exported="false" android:label="SUSE 登录 · 2×1">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_wide" />
+        </receiver>
+        <receiver android:name=".WidgetPinResultReceiver" android:exported="false" />
+        <service android:name=".LoginTileService" android:exported="true"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
+            android:label="SUSE 登录" android:icon="@drawable/ic_quick_login">
+            <intent-filter><action android:name="android.service.quicksettings.action.QS_TILE" /></intent-filter>
+        </service>
+    </application>
+</manifest>
