@@ -1,5 +1,7 @@
 # Android 开发说明
 
+当前正式版本：**0.4.2 / versionCode 7**，Tag 为 `android-v0.4.2`。用户说明见 [Android 使用说明](../android/README.md)，本版变化见 [更新说明](releases/android-v0.4.2.md)。下文各阶段记录保留当时的实现与验收结论。
+
 ## 结构与范围
 
 `android/core` 是纯 Kotlin/JVM 模块，负责协议、受限 HTTP 传输和有限认证流程；`android/app` 负责 Android Network、Keystore、Compose 界面和生命周期。系统能力通过 `WifiAccess`、`WifiLease`、`HttpTransport`、`ConfigurationStore` 接口进入核心。

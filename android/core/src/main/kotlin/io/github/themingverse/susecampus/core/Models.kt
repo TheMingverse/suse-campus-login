@@ -51,12 +51,12 @@ interface WifiAccess { suspend fun acquire(): WifiLease }
 
 fun safeMessage(kind: Failure): String = when (kind) {
     Failure.NO_WIFI -> "未连接 Wi-Fi，请先连接 SUSE 或 SUSE_Hostel。"
-    Failure.OUTSIDE -> "当前 Wi-Fi 不在已支持的校园网名单中，未提交账号密码。"
-    Failure.PERMISSION -> "无法读取校园 Wi-Fi 信息，请允许精确位置权限并开启系统定位后重试。"
-    Failure.AMBIGUOUS -> "存在多个 Wi-Fi，无法确定认证目标，请保留一个校园 Wi-Fi 连接后重试。"
-    Failure.CHANGED -> "网络或设置已变化，本次操作已取消，请重新检查。"
-    Failure.CREDENTIALS -> "账号或密码未通过认证，自动提交已暂停；请检查配置并明确保存后重试。"
-    Failure.SERVICE -> "无法匹配学校最新上网服务，请刷新列表、重新选择并保存。"
-    Failure.TEMPORARY -> "请求超时或校园网服务暂时不可用，本次操作已结束，请稍后手动重试。"
-    Failure.MANUAL -> "认证入口、参数或认证方式无法确认，已停止提交；请使用学校官方登录页面。"
+    Failure.OUTSIDE -> "请连接 SUSE 或 SUSE_Hostel 校园 Wi-Fi。"
+    Failure.PERMISSION -> "请允许精确位置权限并开启系统定位后重试。"
+    Failure.AMBIGUOUS -> "请只保留一个校园 Wi-Fi 连接后重试。"
+    Failure.CHANGED -> "网络或设置已变化，请重新检查。"
+    Failure.CREDENTIALS -> "账号或密码错误，请修改并保存后重试。"
+    Failure.SERVICE -> "请刷新上网服务，重新选择并保存。"
+    Failure.TEMPORARY -> "连接失败，请稍后重试。"
+    Failure.MANUAL -> "无法识别认证页面，请使用学校登录页面。"
 }

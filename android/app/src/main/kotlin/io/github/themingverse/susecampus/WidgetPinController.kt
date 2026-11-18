@@ -9,9 +9,9 @@ enum class PinPhase { INITIAL, WAITING, SUCCESS, MANUAL }
 data class PinState(val phase: PinPhase = PinPhase.INITIAL, val size: WidgetSize = WidgetSize.SMALL, val token: String? = null) {
     val message get() = when (phase) {
         PinPhase.INITIAL -> ""
-        PinPhase.WAITING -> "已请求系统添加。若没有出现确认框，可按下方说明手动添加。"
+        PinPhase.WAITING -> "请在系统弹窗中确认添加。"
         PinPhase.SUCCESS -> "已添加到桌面。"
-        PinPhase.MANUAL -> "系统未能发起添加，请按下方说明手动添加。"
+        PinPhase.MANUAL -> "请按下方步骤手动添加。"
     }
 }
 interface WidgetPinGateway {

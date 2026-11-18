@@ -32,19 +32,19 @@ class UpdateHttp(private val client: OkHttpClient = OkHttpClient.Builder()
                 val location = response.header("Location")
                 val redirected = location?.let { next.resolve(it) }
                 response.close()
-                security(redirected != null && attempt < 5, "更新地址重定向异常。")
+                security(redirected != null && attempt < 5, "更新信息异常，已停止更新。")
                 next = redirected!!
             } else {
                 if (!response.isSuccessful) {
                     val status = response.code
                     response.close()
-                    throw UpdateException(UpdateError.SERVICE, "更新服务返回 HTTP $status，请检查渠道或稍后重试。")
+                    throw UpdateException(UpdateError.SERVICE, "更新服务暂时不可用，请稍后重试。")
                 }
-                if (response.code != 200) { response.close(); throw UpdateException(UpdateError.SECURITY, "更新服务返回了非完整文件响应。") }
+                if (response.code != 200) { response.close(); throw UpdateException(UpdateError.SECURITY, "更新信息异常，已停止更新。") }
                 return response
             }
         }
-        throw UpdateException(UpdateError.SECURITY, "更新地址重定向过多。")
+        throw UpdateException(UpdateError.SECURITY, "更新信息异常，已停止更新。")
     }
     private suspend fun request(url: HttpUrl): Response = suspendCancellableCoroutine { continuation ->
         val handle = UpdateCallHandle()
@@ -55,7 +55,7 @@ class UpdateHttp(private val client: OkHttpClient = OkHttpClient.Builder()
         continuation.invokeOnCancellation { call.cancel() }
         call.enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                if (continuation.isActive) continuation.resumeWithException(UpdateException(UpdateError.NETWORK, "更新网络连接失败或超时，请检查联网状态。"))
+                if (continuation.isActive) continuation.resumeWithException(UpdateException(UpdateError.NETWORK, "连接失败，请稍后重试。"))
             }
             override fun onResponse(call: Call, response: Response) {
                 continuation.resume(response) { _, value, _ -> value.close() }
@@ -68,8 +68,8 @@ class UpdateHttp(private val client: OkHttpClient = OkHttpClient.Builder()
             val cancellation = launch(start = CoroutineStart.UNDISPATCHED) { try { awaitCancellation() } finally { cancelUpdateResponse(response) } }
             try {
                 response.use {
-                    val body = it.body ?: throw UpdateException(UpdateError.SECURITY, "更新服务返回空响应。")
-                    security(body.contentLength() <= limit, "更新信息超过大小限制。")
+                    val body = it.body ?: throw UpdateException(UpdateError.SECURITY, "更新信息异常，已停止更新。")
+                    security(body.contentLength() <= limit, "更新信息异常，已停止更新。")
                     val output = java.io.ByteArrayOutputStream()
                     val buffer = ByteArray(8192)
                     body.byteStream().use { input ->
@@ -77,15 +77,15 @@ class UpdateHttp(private val client: OkHttpClient = OkHttpClient.Builder()
                             ensureActive()
                             val count = input.read(buffer)
                             if (count < 0) break
-                            security(output.size() + count <= limit, "更新信息超过大小限制。")
+                            security(output.size() + count <= limit, "更新信息异常，已停止更新。")
                             output.write(buffer, 0, count)
                         }
                     }
                     try { Charsets.UTF_8.newDecoder().decode(java.nio.ByteBuffer.wrap(output.toByteArray())).toString() }
                     catch (_: java.nio.charset.CharacterCodingException) { throw UpdateException(UpdateError.SECURITY, "更新信息不是合法的 UTF-8 文本。") }
                 }
-            } catch (e: IOException) { currentCoroutineContext().ensureActive(); throw UpdateException(UpdateError.NETWORK, "读取更新信息时网络中断。") }
+            } catch (e: IOException) { currentCoroutineContext().ensureActive(); throw UpdateException(UpdateError.NETWORK, "连接失败，请稍后重试。") }
             finally { cancellation.cancel() }
-        } } } catch (e: TimeoutCancellationException) { currentCoroutineContext().ensureActive(); throw UpdateException(UpdateError.NETWORK, "检查更新超时，请稍后重试。") }
+        } } } catch (e: TimeoutCancellationException) { currentCoroutineContext().ensureActive(); throw UpdateException(UpdateError.NETWORK, "连接失败，请稍后重试。") }
     }
 }

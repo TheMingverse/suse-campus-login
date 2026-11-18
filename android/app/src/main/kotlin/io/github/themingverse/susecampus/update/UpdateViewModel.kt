@@ -13,7 +13,7 @@ data class UpdateUiState(
     val settings: UpdateSettings, val current: InstalledVersion, val release: ReleaseInfo? = null,
     val available: Boolean = false, val busy: Boolean = false, val downloading: Boolean = false,
     val progress: DownloadProgress? = null, val actualSource: UpdateChannel? = null,
-    val message: String = "点击检查更新，获取所选渠道的 Android 正式版本。",
+    val message: String = "",
     val error: UpdateError? = null, val ready: Boolean = false, val permissionNeeded: Boolean = false,
 )
 
@@ -45,7 +45,7 @@ class UpdateViewModel(application: Application) : AndroidViewModel(application) 
         mutable.update { it.copy(busy = true, error = null, permissionNeeded = false) }
         work = viewModelScope.launch {
             try { cleanup.join(); block() }
-            catch (e: CancellationException) { mutable.update { it.copy(message = "操作已取消，不完整下载已清理。") }; throw e }
+            catch (e: CancellationException) { mutable.update { it.copy(message = "已取消。") }; throw e }
             catch (e: UpdateException) {
                 clearReady()
                 mutable.update { it.copy(message = e.message, error = e.kind, ready = false,
@@ -59,45 +59,45 @@ class UpdateViewModel(application: Application) : AndroidViewModel(application) 
         val settings = UpdateSettings(channel, UpdateFormat.repository(repository), checkOnOpen)
         withContext(Dispatchers.IO) { store.save(settings) }
         clearReady()
-        mutable.value = UpdateUiState(settings, ui.value.current, message = "更新渠道已保存。点击检查更新开始。")
+        mutable.value = UpdateUiState(settings, ui.value.current, message = "设置已保存。")
     }
     fun check() = launch {
         clearReady()
         mutable.update { it.copy(release = null, ready = false, available = false, progress = null, actualSource = null, message = "正在检查更新…") }
         val info = repository().latest()
-        if (info == null) mutable.update { it.copy(message = "所选来源尚无 Android 正式发行信息，暂时无法判断最新版本。") }
+        if (info == null) mutable.update { it.copy(message = "暂无可用的更新信息。") }
         else {
             val decision = UpdateChecker.compare(ui.value.current, info)
             val supported = info.minSdk <= Build.VERSION.SDK_INT
             mutable.update { it.copy(release = info, actualSource = info.channel, available = decision == VersionDecision.AVAILABLE && supported,
                 message = if (decision == VersionDecision.CURRENT) "当前已是最新版本。" else if (!supported)
-                    "新版本要求 Android API ${info.minSdk} 或以上，当前设备不支持安装。" else "发现新版本，请确认后下载。") }
+                    "新版暂不支持当前系统。" else "发现新版本。") }
         }
     }
     fun download() = launch {
         val info = ui.value.release ?: return@launch
         if (!ui.value.available) return@launch
         clearReady()
-        mutable.update { it.copy(downloading = true, ready = false, progress = null, message = "正在下载 APK…") }
+        mutable.update { it.copy(downloading = true, ready = false, progress = null, message = "正在下载更新…") }
         val repository = repository()
         fun progress(value: DownloadProgress) { mutable.update { it.copy(progress = value, actualSource = value.source) } }
         verified = try { downloader.download(info, ::progress) }
             catch (e: UpdateException) {
                 val fallback = repository.fallbackDownload(info, e)
-                mutable.update { it.copy(release = fallback, actualSource = fallback.channel, message = "原下载来源网络不可用，正在从 GitHub 下载同一更新。") }
+                mutable.update { it.copy(release = fallback, actualSource = fallback.channel, message = "正在改用 GitHub 下载…") }
                 downloader.download(fallback, ::progress)
             }
-        mutable.update { it.copy(ready = true, message = "APK 哈希、大小、包名、版本和正式签名身份检查通过。系统安装器还会完成签名验证。") }
+        mutable.update { it.copy(ready = true, message = "下载完成，可以安装。") }
     }
     fun install(activity: Activity) = launch {
         val apk = verified ?: return@launch
         if (!installer.canInstall()) {
-            mutable.update { it.copy(permissionNeeded = true, message = "安装更新需要允许本应用安装未知来源应用。仅在本次安装时前往系统授权，授权后会再次检查。") }
+            mutable.update { it.copy(permissionNeeded = true, message = "请在系统设置中允许本应用安装更新。") }
             return@launch
         }
         val intent = withContext(Dispatchers.IO) { installer.installIntent(apk) }
         (getApplication<Application>() as CampusApplication).externalFlow()
-        try { activity.startActivity(intent); mutable.update { it.copy(message = "已打开系统安装器，请在系统界面确认安装。") } }
+        try { activity.startActivity(intent); mutable.update { it.copy(message = "请在系统界面确认安装。") } }
         catch (_: Exception) { throw UpdateException(UpdateError.INSTALL, "系统安装器无法打开，请稍后重试。") }
     }
     fun requestPermission(activity: Activity) {
@@ -105,13 +105,13 @@ class UpdateViewModel(application: Application) : AndroidViewModel(application) 
         awaitingPermission = true
         (getApplication<Application>() as CampusApplication).externalFlow()
         try { activity.startActivity(installer.permissionIntent()) }
-        catch (_: Exception) { awaitingPermission = false; mutable.update { it.copy(message = "无法打开安装授权设置，请在系统设置中允许本应用安装更新。") } }
+        catch (_: Exception) { awaitingPermission = false; mutable.update { it.copy(message = "请在系统设置中允许本应用安装更新。") } }
     }
     fun permissionReturned(activity: Activity) {
         if (!awaitingPermission) return
         awaitingPermission = false
         if (installer.canInstall()) install(activity)
-        else mutable.update { it.copy(permissionNeeded = true, message = "尚未获得安装授权。可以稍后授权，或取消本次安装。") }
+        else mutable.update { it.copy(permissionNeeded = true, message = "尚未获得安装权限。") }
     }
     fun cancel() { work?.cancel() }
     override fun onCleared() { work?.cancel(); clearReady(); super.onCleared() }

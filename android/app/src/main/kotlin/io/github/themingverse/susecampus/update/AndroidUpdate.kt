@@ -44,9 +44,9 @@ class AndroidArchiveInspector(private val context: Context) : ArchiveInspector {
     @Suppress("DEPRECATION")
     override fun inspect(file: File): ArchiveIdentity {
         val info = context.packageManager.getPackageArchiveInfo(file.absolutePath, PackageManager.GET_SIGNING_CERTIFICATES)
-            ?: throw UpdateException(UpdateError.SECURITY, "无法读取 APK 身份或签名信息。")
+            ?: throw UpdateException(UpdateError.SECURITY, "安装包校验失败，无法安装。")
         val signers = info.signingInfo?.apkContentsSigners
-            ?: throw UpdateException(UpdateError.SECURITY, "APK 缺少签名证书。")
+            ?: throw UpdateException(UpdateError.SECURITY, "安装包校验失败，无法安装。")
         return ArchiveIdentity(info.packageName, info.versionName ?: "", info.longVersionCode,
             info.applicationInfo?.minSdkVersion ?: Int.MAX_VALUE, signers.map {
                 MessageDigest.getInstance("SHA-256").digest(it.toByteArray()).joinToString("") { byte -> "%02x".format(byte) }
@@ -61,13 +61,13 @@ class ApkInstaller(private val context: Context, private val verifier: ApkVerifi
     fun canInstall() = allowed()
     fun permissionIntent() = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, Uri.parse("package:${context.packageName}"))
     fun installIntent(apk: VerifiedApk): Intent {
-        if (!allowed()) throw UpdateException(UpdateError.INSTALL, "需要允许本应用安装更新，请先在系统设置中授权。")
+        if (!allowed()) throw UpdateException(UpdateError.INSTALL, "请在系统设置中允许本应用安装更新。")
         val ready = File(context.cacheDir, "updates/ready").canonicalFile
-        security(apk.file.canonicalFile.parentFile == ready, "安装文件不在已验证的私有目录。")
+        security(apk.file.canonicalFile.parentFile == ready, "安装文件无效，请重新下载。")
         try { verifier.verify(apk.file, apk.release) }
         catch (e: Exception) { apk.file.delete(); throw e }
         val uri = uriForFile(apk.file)
-        security(uri.scheme == "content" && uri.authority == "${context.packageName}.updates", "安装包 URI 不安全。")
+        security(uri.scheme == "content" && uri.authority == "${context.packageName}.updates", "安装文件无效，请重新下载。")
         return Intent(Intent.ACTION_VIEW).setDataAndType(uri, "application/vnd.android.package-archive")
             .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION).apply { clipData = ClipData.newRawUri("APK", uri) }
     }

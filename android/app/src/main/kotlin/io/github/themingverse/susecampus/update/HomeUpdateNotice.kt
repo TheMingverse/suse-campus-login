@@ -14,7 +14,7 @@ fun HomeUpdateNotice(checker: ForegroundUpdateChecker, blocked: Boolean, viewUpd
         val release = state.release!!
         AlertDialog(onDismissRequest = checker::dismiss,
             title = { Text("发现新版本") },
-            text = { Text("${release.versionName}（${release.versionCode}）已发布。可查看更新日志，再决定是否下载。") },
+            text = { Text("新版本 ${release.versionName} 已发布。") },
             confirmButton = { TextButton(onClick = { checker.dismiss(); viewUpdate() }) { Text("查看更新") } },
             dismissButton = { TextButton(onClick = checker::dismiss) { Text("稍后") } })
     }

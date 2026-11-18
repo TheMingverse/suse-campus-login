@@ -40,7 +40,7 @@ class CampusViewModel(application: Application) : AndroidViewModel(application) 
                 mutableUi.value = CampusUiState(false, forceEditor || !saved.complete, saved.username, saved.service, saved.autoLogin,
                     saved.password.isNotEmpty(), busy = graph.coordinator.state.value.busy, networkText = ui.value.networkText)
             } catch (_: Exception) {
-                mutableUi.value = CampusUiState(loading = false, notice = "保存的数据无法解密，请重新填写配置并保存。", networkText = ui.value.networkText)
+                mutableUi.value = CampusUiState(loading = false, notice = "无法读取配置，请重新填写并保存。", networkText = ui.value.networkText)
             }
             maybeAutomatic()
         }
@@ -89,10 +89,10 @@ class CampusViewModel(application: Application) : AndroidViewModel(application) 
                 saved = store.load()
                 engine.resetCatalog()
                 mutableUi.value = CampusUiState(false, !saved.complete, saved.username, saved.service, saved.autoLogin,
-                    saved.password.isNotEmpty(), notice = if (saved.complete) "配置已保存，点击“立即检查并登录”开始。" else "账号草稿已加密保存；请连接校园 Wi-Fi，刷新并选择上网服务。",
+                    saved.password.isNotEmpty(), notice = if (saved.complete) "设置已保存。" else "草稿已保存，请刷新并选择上网服务。",
                     networkText = ui.value.networkText)
             } catch (_: Exception) {
-                mutableUi.update { it.copy(notice = "保存失败。请检查账号密码及服务选择，原配置仍然保留。") }
+                mutableUi.update { it.copy(notice = "保存失败，请检查账号、密码和上网服务。") }
             } finally { mutableUi.update { it.copy(saving = false) } }
         }
     }

@@ -22,13 +22,13 @@ fun QuickEntryControls() {
     OutlinedCard(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Text("桌面与快捷入口", style = MaterialTheme.typography.titleMedium)
-            Text("点击桌面小组件或控制中心磁贴，直接检查并按需登录。离开认证页面或锁屏会取消本次操作。")
+            Text("点击小组件或磁贴即可检查并登录。")
             for ((label, size) in listOf("添加 1×1 小组件" to WidgetSize.SMALL, "添加 2×1 小组件" to WidgetSize.WIDE)) {
                 OutlinedButton(onClick = { pins.request(size) }, enabled = pinState.phase != PinPhase.WAITING) { Text(label) }
             }
             if (pinState.message.isNotEmpty()) Text(pinState.message)
             if (pinState.phase in setOf(PinPhase.WAITING, PinPhase.MANUAL)) {
-                Text("手动添加：长按桌面空白处 → 添加小组件 → SUSE 登录 → 选择 1×1 或 2×1。取消系统确认不会自动重试。")
+                Text("手动添加：长按桌面空白处 → 添加小组件 → SUSE 登录 → 选择 1×1 或 2×1。")
                 OutlinedButton(onClick = { pins.retry(WidgetSize.SMALL) }) { Text("重新请求 1×1") }
                 OutlinedButton(onClick = { pins.retry(WidgetSize.WIDE) }) { Text("重新请求 2×1") }
                 TextButton(onClick = {
@@ -50,7 +50,7 @@ fun QuickEntryControls() {
                     }.onFailure { notice = "请下拉控制中心，点击编辑并添加 SUSE 登录。" }
                 } else notice = "请下拉控制中心，点击编辑，将 SUSE 登录拖入快捷区域。"
             }) { Text("添加快捷设置磁贴") }
-            Text("小组件显示最近一次检查结果和时间，不代表实时联网状态。", style = MaterialTheme.typography.bodySmall)
+            Text("显示上次检查结果。", style = MaterialTheme.typography.bodySmall)
             if (notice.isNotEmpty()) Text(notice)
         }
     }

@@ -1,6 +1,6 @@
 # Android 正式签名与首次迁移
 
-当前准备版本为 **0.4.0 / versionCode 5**，Tag 为 `android-v0.4.0`。本指南中的建钥、备份和签名输入由维护者本人执行。已有正式密钥和登记指纹时，跳过第 1–3 节，使用原密钥执行第 4 节，不能重新建钥替换。无需将私钥或密码发送给 AI。
+当前版本为 **0.4.2 / versionCode 7**，Tag 为 `android-v0.4.2`。本指南中的建钥、备份和签名输入由维护者本人执行。已有正式密钥和登记指纹时，跳过第 1–3 节，使用原密钥执行第 4 节，不能重新建钥替换。无需将私钥或密码发送给 AI。
 
 ## 先理解两种密钥
 
@@ -59,7 +59,7 @@ if ($LASTEXITCODE -ne 0) { throw '密钥创建未成功，请检查 keytool 提�
 $env:SUSE_ANDROID_KEYSTORE_PATH = $campusKeyFile
 $env:SUSE_ANDROID_KEY_ALIAS = 'suse-campus-android'
 try {
-  .\.venv\Scripts\python.exe -X utf8 tools\android_release.py --tag android-v0.4.0
+  .\.venv\Scripts\python.exe -X utf8 tools\android_release.py --tag android-v0.4.2
   if ($LASTEXITCODE -ne 0) { throw '发行构建未通过，请按脚本提示检查。' }
 } finally {
   Remove-Item Env:\SUSE_ANDROID_KEYSTORE_PATH -ErrorAction SilentlyContinue
@@ -74,7 +74,7 @@ try {
 签名后发生验证或交付失败时，文件会保留在唯一的本地诊断目录：
 
 ```text
-build/android-diagnostics/android-v0.4.0-<随机名>/
+build/android-diagnostics/android-v0.4.2-<随机名>/
   signed-failed.apk
   diagnostics.json
   default.stdout.txt / default.stderr.txt
@@ -89,8 +89,8 @@ build/android-diagnostics/android-v0.4.0-<随机名>/
 通过后的本地交付目录为：
 
 ```text
-release/android/android-v0.4.0/
-  SUSE-CampusLogin-Android-v0.4.0-release.apk
+release/android/android-v0.4.2/
+  SUSE-CampusLogin-Android-v0.4.2-release.apk
   SHA256SUMS.txt
   android-release.json
   verification.json
@@ -101,8 +101,8 @@ release/android/android-v0.4.0/
 还可独立复核最终文件：
 
 ```powershell
-.\.venv\Scripts\python.exe -X utf8 tools\android_verify.py --release-dir release/android/android-v0.4.0 --tag android-v0.4.0
-Get-FileHash -Algorithm SHA256 -LiteralPath 'release/android/android-v0.4.0/SUSE-CampusLogin-Android-v0.4.0-release.apk'
+.\.venv\Scripts\python.exe -X utf8 tools\android_verify.py --release-dir release/android/android-v0.4.2 --tag android-v0.4.2
+Get-FileHash -Algorithm SHA256 -LiteralPath 'release/android/android-v0.4.2/SUSE-CampusLogin-Android-v0.4.2-release.apk'
 ```
 
 本地构建不等于公开发布。第一次公开发布留待 6D 真机验收后单独确认；当前工作区尚有未提交的 Android 源码，报告会如实标记，不能把 HEAD 当成全部发行源码。
@@ -110,11 +110,11 @@ Get-FileHash -Algorithm SHA256 -LiteralPath 'release/android/android-v0.4.0/SUSE
 ## 无密钥时如何检查构建
 
 ```powershell
-.\.venv\Scripts\python.exe -X utf8 tools\android_release.py --unsigned --tag android-v0.4.0
+.\.venv\Scripts\python.exe -X utf8 tools\android_release.py --unsigned --tag android-v0.4.2
 .\.venv\Scripts\python.exe -X utf8 tools\android_verify.py --variant release --allow-unsigned
 ```
 
-输出到 `build/android-delivery/SUSE-CampusLogin-Android-v0.4.0-unsigned.apk`。这是**不可直接安装的构建中间产物**，没有正式签名，不生成更新版本信息或正式 `SHA256SUMS.txt`。检查报告里的 `signatureVerified` 和 `releaseReady` 都为 `false`。
+输出到 `build/android-delivery/SUSE-CampusLogin-Android-v0.4.2-unsigned.apk`。这是**不可直接安装的构建中间产物**，没有正式签名，不生成更新版本信息或正式 `SHA256SUMS.txt`。检查报告里的 `signatureVerified` 和 `releaseReady` 都为 `false`。
 
 ## Debug 首次迁移到正式版
 

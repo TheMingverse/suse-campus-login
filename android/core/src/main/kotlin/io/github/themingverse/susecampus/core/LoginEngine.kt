@@ -36,7 +36,7 @@ class LoginEngine(private val store: ConfigurationStore, private val wifi: WifiA
                     emit(Stage.SETUP, "请完成配置，或点击按钮手动检查。", emptyList())
                     return@withTimeout
                 }
-                emit(Stage.CHECKING, "正在单独检查校园 Wi-Fi……", emptyList())
+                emit(Stage.CHECKING, "正在检查校园 Wi-Fi…", emptyList())
                 val connection = wifi.acquire().also { lease = it }
                 coroutineScope {
                     val operation = currentCoroutineContext().job
@@ -49,34 +49,34 @@ class LoginEngine(private val store: ConfigurationStore, private val wifi: WifiA
                         val probe = NetworkProbe(connection.transport, connection::guard)
                         val result = probe.check()
                         if (result.state == ProbeState.ONLINE) {
-                            emit(Stage.ONLINE, if (refreshOnly) "当前 Wi-Fi 已联网，暂无法刷新服务列表，原选择已保留。" else "校园 Wi-Fi 已能上网，无需重复登录。")
+                            emit(Stage.ONLINE, if (refreshOnly) "当前已联网，请在下次需要认证时刷新上网服务。" else "校园 Wi-Fi 已联网。")
                             return@coroutineScope
                         }
                         if (result.state == ProbeState.UNKNOWN) {
-                            emit(Stage.FAILED, "无法确认互联网可用，也未发现明确的学校认证跳转；未提交账号密码。")
+                            emit(Stage.FAILED, "无法确认联网状态，请稍后重试。")
                             return@coroutineScope
                         }
                         if (result.state == ProbeState.UNSUPPORTED) throw PortalException(Failure.MANUAL)
                         if (!refreshOnly && (settings.block == Block.CREDENTIALS || (automatic && settings.block != null))) {
                             emit(Stage.BLOCKED, if (settings.block == Block.CREDENTIALS) safeMessage(Failure.CREDENTIALS)
-                                else "上次认证需要人工确认，自动提交已暂停。处理后可手动检查。",
+                                else "请在学校登录页面完成认证后重新检查。",
                                 failure = if (settings.block == Block.CREDENTIALS) Failure.CREDENTIALS else Failure.MANUAL)
                             return@coroutineScope
                         }
                         val url = result.portal ?: throw PortalException(Failure.MANUAL)
-                        emit(Stage.PREPARING, "正在读取学校认证信息和实时上网服务……")
+                        emit(Stage.PREPARING, "正在获取上网服务…")
                         val client = PortalClient(connection.transport, connection::guard)
                         val prepared = client.prepare(url)
                         connection.guard()
                         if (refreshOnly) {
-                            emit(Stage.CATALOG, "学校服务列表已更新，请选择后保存。", prepared.services)
+                            emit(Stage.CATALOG, "上网服务已更新，请选择并保存。", prepared.services)
                             return@coroutineScope
                         }
                         if (!settings.complete) {
-                            emit(Stage.SETUP, "请填写账号密码、选择实时服务并保存。", prepared.services)
+                            emit(Stage.SETUP, "请填写账号、密码并选择上网服务。", prepared.services)
                             return@coroutineScope
                         }
-                        emit(Stage.PREPARING, "已获取学校实时服务列表。", prepared.services)
+                        emit(Stage.PREPARING, "已获取上网服务。", prepared.services)
                         Protocol.requireService(prepared.services, settings.service)
                         // Validate encryption/auth mode before writing the crash-safety block.
                         Protocol.loginFields(settings, Protocol.connectionQuery(url), prepared.info)
@@ -84,18 +84,18 @@ class LoginEngine(private val store: ConfigurationStore, private val wifi: WifiA
                         store.block(settings.revision, Block.UNVERIFIED)
                         connection.guard(); currentCoroutineContext().ensureActive()
                         submitted = true
-                        emit(Stage.AUTHENTICATING, "正在向学校认证服务器提交一次登录……")
+                        emit(Stage.AUTHENTICATING, "正在登录…")
                         client.authenticate(url, settings, prepared)
-                        emit(Stage.VERIFYING, "认证已接受，正在复核同一个校园 Wi-Fi……")
+                        emit(Stage.VERIFYING, "正在检查联网状态…")
                         val verified = probe.check()
                         connection.guard()
                         if (verified.state == ProbeState.ONLINE) {
                             store.block(settings.revision, null)
-                            emit(Stage.ONLINE, "登录成功，已确认校园 Wi-Fi 可以访问互联网。")
+                            emit(Stage.ONLINE, "登录成功。")
                         } else {
                             emit(Stage.BLOCKED, if (settings.service == "校园网")
-                                "学校已接受校内网登录，该服务可能仅开放校内资源，尚未确认互联网可用。"
-                                else "认证已接受，但尚未确认互联网可用；已暂停后续自动提交，请稍后手动检查。")
+                                "校内网认证已通过，暂未确认外网连接。"
+                                else "认证已通过，暂未确认能否上网。")
                         }
                     } finally { watcher.cancel() }
                 }

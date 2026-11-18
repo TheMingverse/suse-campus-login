@@ -25,7 +25,7 @@ import io.github.themingverse.susecampus.core.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 
-data class QuickUi(val text: String = "准备检查校园 Wi-Fi……", val busy: Boolean = true,
+data class QuickUi(val text: String = "正在检查校园 Wi-Fi…", val busy: Boolean = true,
     val success: Boolean = false, val setup: Boolean = false, val permission: Boolean = false)
 
 class QuickLoginViewModel(application: Application, private val savedState: SavedStateHandle) : AndroidViewModel(application) {
@@ -51,7 +51,7 @@ class QuickLoginViewModel(application: Application, private val savedState: Save
         if (!retry && savedState.get<Boolean>("attempted") == true) {
             val current = graph.coordinator.state.value
             if (restored && (observedId != current.id || current.id == 0L))
-                mutable.value = QuickUi("上次任务已中断，点击重试开始新检查。", false)
+                mutable.value = QuickUi("上次检查已中断，请重试。", false)
             return
         }
         restored = false
@@ -62,12 +62,12 @@ class QuickLoginViewModel(application: Application, private val savedState: Save
             val current = graph.coordinator.state.value
             if (current.busy && current.kind == OperationKind.LOGIN) { join(); return@launch }
             val config = try { graph.store.load() } catch (cancelled: CancellationException) { throw cancelled } catch (_: Exception) {
-                mutable.value = QuickUi("保存的数据无法解密，请进入 App 重新配置。", false, setup = true)
+                mutable.value = QuickUi("无法读取配置，请重新配置。", false, setup = true)
                 hint(QuickOutcome.SETUP)
                 return@launch
             }
             if (!config.complete) {
-                mutable.value = QuickUi("尚未完成账号配置，请先填写账号密码并选择学校上网服务。", false, setup = true)
+                mutable.value = QuickUi("请先填写账号、密码并选择上网服务。", false, setup = true)
                 hint(QuickOutcome.SETUP)
                 return@launch
             }
@@ -86,7 +86,7 @@ class QuickLoginViewModel(application: Application, private val savedState: Save
         val id = graph.coordinator.startOrJoin()
         observedId = id; savedState["taskId"] = id
         val operation = graph.coordinator.state.value
-        if (id == 0L) mutable.value = QuickUi("认证页面不在前台，本次操作未启动。", false)
+        if (id == 0L) mutable.value = QuickUi("请返回登录页面后重试。", false)
         else mutable.value = QuickUi(operation.status.text, operation.busy,
             !operation.busy && operation.status.stage == Stage.ONLINE,
             operation.status.stage == Stage.SETUP, operation.status.failure == Failure.PERMISSION)

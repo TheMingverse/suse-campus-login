@@ -12,9 +12,13 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.*
 import androidx.compose.ui.graphics.Color
+import android.widget.Toast
+import io.github.themingverse.susecampus.tutorial.TutorialViewModel
+import io.github.themingverse.susecampus.tutorial.tutorialProjectIntent
 
 class MainActivity : ComponentActivity() {
     private val model: CampusViewModel by viewModels()
+    private val tutorial: TutorialViewModel by viewModels()
     private var pendingRefresh = false
     private val permission = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
         // A denial also runs the guarded check, so the UI offers a concrete recovery message.
@@ -40,6 +44,11 @@ class MainActivity : ComponentActivity() {
                     openUpdatePage(false)
                 }, updateChecker = (application as CampusApplication).updates.checker, openPromptedUpdate = {
                     openUpdatePage(true)
+                }, tutorial = tutorial.controller, openTutorialProject = {
+                    model.externalFlow()
+                    runCatching { startActivity(tutorialProjectIntent()) }.onFailure {
+                        Toast.makeText(this, "无法打开浏览器，可长按教程中的网址复制。", Toast.LENGTH_LONG).show()
+                    }
                 })
             }
         }

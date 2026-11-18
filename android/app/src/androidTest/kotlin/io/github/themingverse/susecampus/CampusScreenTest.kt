@@ -40,6 +40,6 @@ class CampusScreenTest {
         compose.onNodeWithText("立即检查并登录").performClick()
         assertEquals(1, checks)
         compose.onNodeWithText("上网服务：测试服务").assertExists()
-        compose.onNodeWithText("自动登录已关闭，点击按钮手动检查。").assertExists()
+        compose.onNodeWithText("自动登录已关闭。").assertExists()
     }
 }

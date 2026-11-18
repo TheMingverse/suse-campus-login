@@ -8,6 +8,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
@@ -15,15 +16,19 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.themingverse.susecampus.core.*
+import io.github.themingverse.susecampus.tutorial.TutorialController
+import io.github.themingverse.susecampus.tutorial.TutorialDialog
 
 @Composable
 fun CampusScreen(model: CampusViewModel, requestPermission: (Boolean) -> Unit, openLocationSettings: () -> Unit, openAppSettings: () -> Unit,
                  openUpdates: () -> Unit = {},
                  updateChecker: io.github.themingverse.susecampus.update.ForegroundUpdateChecker? = null,
-                 openPromptedUpdate: () -> Unit = openUpdates) {
+                 openPromptedUpdate: () -> Unit = openUpdates,
+                 tutorial: TutorialController? = null, openTutorialProject: () -> Unit = {}) {
     val ui by model.ui.collectAsStateWithLifecycle()
     val status by model.status.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val tutorialState = tutorial?.state?.collectAsStateWithLifecycle()?.value
     fun action(refresh: Boolean) {
         if (context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) requestPermission(refresh)
         else if (refresh) model.refresh() else model.check()
@@ -31,10 +36,14 @@ fun CampusScreen(model: CampusViewModel, requestPermission: (Boolean) -> Unit, o
     CampusContent(ui, status, onCheck = { action(false) }, onRefresh = { action(true) }, onCancel = model::cancel,
         onEdit = model::edit, onDismissEditor = model::dismissEditor, onSave = model::save,
         onPermission = { requestPermission(ui.editing) }, onLocationSettings = openLocationSettings, onAppSettings = openAppSettings,
-        onUpdates = openUpdates)
+        onUpdates = openUpdates, onTutorial = { tutorial?.open() })
+    if (!ui.loading && tutorial != null && tutorialState?.visible == true) {
+        TutorialDialog(tutorialState, tutorial, openTutorialProject)
+    }
     updateChecker?.let { checker ->
         io.github.themingverse.susecampus.update.HomeUpdateNotice(checker,
-            blocked = ui.loading || ui.busy || ui.saving || ui.editing, viewUpdate = openPromptedUpdate)
+            blocked = ui.loading || ui.busy || ui.saving || ui.editing || tutorialState?.blocksUpdatePrompt == true,
+            viewUpdate = openPromptedUpdate)
     }
 }
 
@@ -45,17 +54,24 @@ fun CampusContent(
     onEdit: () -> Unit = {}, onDismissEditor: () -> Unit = {},
     onSave: (String, String, String, Boolean) -> Unit = { _, _, _, _ -> },
     onPermission: () -> Unit = {}, onLocationSettings: () -> Unit = {}, onAppSettings: () -> Unit = {},
-    onUpdates: () -> Unit = {},
+    onUpdates: () -> Unit = {}, onTutorial: () -> Unit = {},
 ) {
-    Scaffold { padding ->
+    Scaffold(topBar = {
+        Surface(tonalElevation = 1.dp) {
+            Column(Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.statusBars)
+                .padding(horizontal = 20.dp, vertical = 8.dp)) {
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text("SUSE 校园网", Modifier.weight(1f), style = MaterialTheme.typography.headlineSmall)
+                    OutlinedButton(onClick = onTutorial) { Text("使用教程") }
+                }
+            }
+        }
+    }) { padding ->
         BoxWithConstraints(Modifier.fillMaxSize().padding(padding)) {
             val wide = maxWidth >= 840.dp
             Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(if (wide) 40.dp else 24.dp),
                 verticalArrangement = Arrangement.spacedBy(24.dp)) {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("SUSE 校园网", style = MaterialTheme.typography.headlineLarge)
-                    Text("连接校园，随用随走", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
                 if (ui.loading) CircularProgressIndicator()
                 else if (wide) {
                     Row(horizontalArrangement = Arrangement.spacedBy(28.dp)) {
@@ -93,7 +109,6 @@ private fun StatusCard(ui: CampusUiState, status: LoginStatus, onCheck: () -> Un
                 if (!ui.editing) OutlinedButton(onClick = onEdit, enabled = !ui.saving) { Text("修改账号及运营商") }
             }
             if (status.stage == Stage.FAILED && status.text == safeMessage(Failure.PERMISSION)) {
-                Text("读取 Wi-Fi 名称需要精确位置权限和系统定位；本应用不采集或上传位置。")
                 TextButton(onClick = onPermission) { Text("授予 Wi-Fi 识别权限") }
                 TextButton(onClick = onAppSettings) { Text("打开应用权限设置") }
                 TextButton(onClick = onLocationSettings) { Text("打开系统定位设置") }
@@ -108,8 +123,7 @@ private fun HelpCard(ui: CampusUiState) {
         Column(Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Text("已保存的配置", style = MaterialTheme.typography.titleMedium)
             Text("上网服务：${ui.service.ifEmpty { "待选择" }}")
-            Text(if (ui.autoLogin) "打开 App 后检查一次，按需登录。" else "自动登录已关闭，点击按钮手动检查。")
-            Text("任务结束后不再检测，也不常驻后台。", color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(if (ui.autoLogin) "打开 App 时自动检查并登录。" else "自动登录已关闭。")
         }
     }
 }

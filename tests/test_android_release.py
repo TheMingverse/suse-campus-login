@@ -284,6 +284,38 @@ class AndroidReleaseTests(unittest.TestCase):
             self.assertFalse(stale.exists())
             self.assertTrue((self.root / "android/private.p12").exists())
 
+    def test_tutorial_images_are_explicitly_allowlisted_only_in_app_drawable_nodpi(self):
+        self.assertEqual(len(build.TUTORIAL_IMAGES), 10)
+        for name in build.TUTORIAL_IMAGES:
+            self.assertTrue(build.allowed_source(Path("android/app/src/main/res/drawable-nodpi") / name))
+        for name in ("android/使用教程素材/tutorial_account.jpg",
+                     "android/app/src/main/res/drawable-nodpi/unrelated.jpg",
+                     "android/app/src/main/res/drawable/tutorial_account.jpg",
+                     "android/core/src/main/res/drawable-nodpi/tutorial_account.jpg",
+                     "android/app/src/main/assets/tutorial_account.jpg",
+                     "android/app/src/main/res/drawable-nodpi/nested/tutorial_account.jpg",
+                     "android/app/src/main/res/drawable-nodpi/private.p12"):
+            with self.subTest(name=name):
+                self.assertFalse(build.allowed_source(Path(name)))
+
+    def test_sync_copies_approved_tutorial_bytes_without_importing_original_photo_folder(self):
+        with patch.object(build, "ROOT", self.root):
+            (self.root / "tests").mkdir()
+            (self.root / "tests/rsa_vectors.json").write_text("[]")
+            images = self.root / "android/app/src/main/res/drawable-nodpi"
+            images.mkdir(parents=True)
+            content = b"synthetic image bytes for the file copy test"
+            (images / "tutorial_account.jpg").write_bytes(content)
+            (images / "unrelated.jpg").write_bytes(b"not approved")
+            originals = self.root / "android/使用教程素材"
+            originals.mkdir()
+            (originals / "original.jpg").write_bytes(b"keep original local")
+            stage = self.root / "stage"
+            build.sync_sources(stage)
+            self.assertEqual((stage / "android/app/src/main/res/drawable-nodpi/tutorial_account.jpg").read_bytes(), content)
+            self.assertFalse((stage / "android/app/src/main/res/drawable-nodpi/unrelated.jpg").exists())
+            self.assertFalse((stage / "android/使用教程素材").exists())
+
     def test_sync_rejects_escaping_manifest_paths(self):
         stage = self.root / "stage"
         stage.mkdir()

@@ -14,6 +14,13 @@ from android_artifacts import read_version, read_identity, read_update_sources
 
 ROOT = Path(__file__).resolve().parents[1]
 
+TUTORIAL_IMAGES = frozenset({
+    "tutorial_account.jpg", "tutorial_service.jpg", "tutorial_tile_confirm.jpg",
+    "tutorial_tile_edit.jpg", "tutorial_quick_entries.jpg", "tutorial_widget_desktop.jpg",
+    "tutorial_widget_catalog.jpg", "tutorial_widget_android.jpg", "tutorial_widget_picker.jpg",
+    "tutorial_widget_placed.jpg",
+})
+
 
 def build_environment(source=None):
     # Signing credentials must not reach Gradle, its daemon, or workers.
@@ -45,7 +52,9 @@ def allowed_source(relative):
     if parts[4] == "kotlin":
         return relative.suffix == ".kt"
     if parts[3] == "main" and parts[4] == "res":
-        return relative.suffix == ".xml"
+        return relative.suffix == ".xml" or (
+            parts[:5] == ("android", "app", "src", "main", "res") and len(parts) == 7 and
+            parts[5] == "drawable-nodpi" and parts[6] in TUTORIAL_IMAGES)
     if parts[3] == "main" and parts[4] == "assets":
         return parts[5:] in (("third_party_notices.txt",), ("licenses", "Apache-2.0.txt"),
                             ("licenses", "jsoup-MIT.txt"))

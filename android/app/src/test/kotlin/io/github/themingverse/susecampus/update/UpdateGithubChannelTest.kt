@@ -86,7 +86,10 @@ class UpdateGithubChannelTest {
             for (code in listOf(403, 404, 429, 500, 503)) {
                 server.enqueue(MockResponse().setResponseCode(code))
                 try { GitHubUpdateSource(testTrust, localTransport(server)).latest(); fail("Expected HTTP error") }
-                catch (error: UpdateException) { assertEquals(UpdateError.SERVICE, error.kind); assertTrue(error.message!!.contains("HTTP $code")) }
+                catch (error: UpdateException) {
+                    assertEquals(UpdateError.SERVICE, error.kind)
+                    assertEquals("更新服务暂时不可用，请稍后重试。", error.message)
+                }
             }
         }
     }
