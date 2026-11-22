@@ -31,3 +31,14 @@ keystore.properties
 signing.properties
 *.signing.properties
 
+# iOS generated project and build output
+ios/*.xcodeproj
+ios/*.xcworkspace
+ios/build/
+ios/DerivedData/
+ios/Payload/
+ios/*.ipa
+ios/*.xcresult
+xcuserdata/
+*.xcuserstate
+

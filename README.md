@@ -4,7 +4,7 @@
 
 连上校园网，登录交给它。
 
-面向**四川轻化工大学宜宾校区**，提供 Android、Windows 和 Mac 版本。
+面向**四川轻化工大学宜宾校区**，提供 Android、Windows、Mac 和 iOS 版本。
 
 ## Android 版
 
@@ -80,5 +80,15 @@
 打开下载的 DMG，将 `SUSECampusLogin.app` 拖到“应用程序”，打开后填写账号、选择服务并保存。读取校园 Wi-Fi 名称时，请允许定位服务；关闭窗口后，可从顶部菜单栏重新打开设置。
 
 [Mac 使用说明](docs/macos.md)
+
+## iOS 版（测试中）
+
+支持 **iOS 17 及以上**，用 SwiftUI 编写，协议与 Android、Mac 版共用同一套逻辑。
+
+`ios/` 目录是自包含的 Xcode 工程说明：用 [XcodeGen](https://github.com/yonaskolb/XcodeGen) 生成工程，`xcodebuild test` 跑回归测试，GitHub Actions 会构建一个**未签名**的 `.ipa` 供自签工具安装。
+
+iOS 无法读取 Wi-Fi 名称，因此改用“所有请求只走 Wi-Fi + 门户探测”判断是否在校园网内；首次登录时系统会询问是否允许访问本地网络，请选择允许。
+
+[iOS 使用与开发说明](ios/README.md)
 
 非学校官方工具。
