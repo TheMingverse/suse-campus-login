@@ -1,0 +1,182 @@
+{
+  "source": "Unchanged local Python protocol; synthetic credentials and connection parameters only.",
+  "query": "wlanuserip=fresh-user&wlanacname=fresh-ac&mac=ab%3Acd&ssid=fresh-ssid",
+  "portal": "http://10.23.2.4/eportal/index.jsp?wlanuserip=fresh-user&wlanacname=fresh-ac&mac=ab%3Acd&ssid=fresh-ssid",
+  "components": [
+    {
+      "input": "!~*'() ",
+      "expected": "!~*'()%20"
+    },
+    {
+      "input": "汉字🙂+&%",
+      "expected": "%E6%B1%89%E5%AD%97%F0%9F%99%82%2B%26%25"
+    },
+    {
+      "input": "a/b:c?d=e",
+      "expected": "a%2Fb%3Ac%3Fd%3De"
+    }
+  ],
+  "forms": [
+    {
+      "fields": {
+        "userId": "student+&%",
+        "password": "a+b&c=汉字🙂!",
+        "queryString": "wlanuserip=fresh-user&wlanacname=fresh-ac&mac=ab%3Acd&ssid=fresh-ssid",
+        "service": "新服务+&汉字"
+      },
+      "double": false,
+      "expected": "userId=student%2B%26%25&password=a%2Bb%26c%3D%E6%B1%89%E5%AD%97%F0%9F%99%82!&queryString=wlanuserip%3Dfresh-user%26wlanacname%3Dfresh-ac%26mac%3Dab%253Acd%26ssid%3Dfresh-ssid&service=%E6%96%B0%E6%9C%8D%E5%8A%A1%2B%26%E6%B1%89%E5%AD%97"
+    },
+    {
+      "fields": {
+        "userId": "student+&%",
+        "password": "a+b&c=汉字🙂!",
+        "queryString": "wlanuserip=fresh-user&wlanacname=fresh-ac&mac=ab%3Acd&ssid=fresh-ssid",
+        "service": "新服务+&汉字"
+      },
+      "double": true,
+      "expected": "userId=student%252B%2526%2525&password=a%252Bb%2526c%253D%25E6%25B1%2589%25E5%25AD%2597%25F0%259F%2599%2582!&queryString=wlanuserip%253Dfresh-user%2526wlanacname%253Dfresh-ac%2526mac%253Dab%25253Acd%2526ssid%253Dfresh-ssid&service=%25E6%2596%25B0%25E6%259C%258D%25E5%258A%25A1%252B%2526%25E6%25B1%2589%25E5%25AD%2597"
+    }
+  ],
+  "catalogs": [
+    {
+      "payload": {
+        "serviceJson": [
+          {
+            "serviceName": "新服务+&汉字"
+          }
+        ]
+      },
+      "expected": [
+        {
+          "name": "新服务+&汉字",
+          "available": true
+        }
+      ]
+    },
+    {
+      "payload": {
+        "serviceJson": [
+          {
+            "serviceName": "A"
+          },
+          {
+            "serviceName": "A"
+          }
+        ]
+      },
+      "expected": [
+        {
+          "name": "A",
+          "available": true
+        }
+      ]
+    },
+    {
+      "payload": {
+        "serviceJson": [
+          {
+            "serviceName": "A",
+            "id": 1
+          },
+          {
+            "serviceName": "A",
+            "id": 2
+          },
+          {
+            "serviceName": "A",
+            "id": 2
+          }
+        ]
+      },
+      "expected": [
+        {
+          "name": "A",
+          "available": false
+        }
+      ]
+    },
+    {
+      "payload": {
+        "serviceJson": [
+          {
+            "serviceName": "A",
+            "aceNotShow": true
+          }
+        ]
+      },
+      "expected": [
+        {
+          "name": "A",
+          "available": false
+        }
+      ]
+    },
+    {
+      "payload": {
+        "serviceJson": [
+          {
+            "serviceName": "A",
+            "domainName": "unexpected"
+          }
+        ]
+      },
+      "expected": [
+        {
+          "name": "A",
+          "available": false
+        }
+      ]
+    }
+  ],
+  "outcomes": [
+    {
+      "data": {
+        "result": "success"
+      },
+      "expected": "success"
+    },
+    {
+      "data": {
+        "result": "success",
+        "message": "false::PWD_COMPLEX_OFFLINE_WEB::5"
+      },
+      "expected": "manual"
+    },
+    {
+      "data": {
+        "result": "fail",
+        "message": "用户student密码错误"
+      },
+      "expected": "credentials"
+    },
+    {
+      "data": {
+        "result": "fail",
+        "message": "验证码错误"
+      },
+      "expected": "manual"
+    },
+    {
+      "data": {
+        "result": "fail",
+        "message": "服务器繁忙"
+      },
+      "expected": "temporary"
+    },
+    {
+      "data": {
+        "result": "fail",
+        "message": "终端数量上限"
+      },
+      "expected": "manual"
+    },
+    {
+      "data": {
+        "result": "fail",
+        "message": "unknown student synthetic-secret"
+      },
+      "expected": "manual"
+    }
+  ]
+}

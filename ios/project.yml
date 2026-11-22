@@ -1,0 +1,72 @@
+name: SUSECampusLogin
+options:
+  bundleIdPrefix: io.github.themingverse
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+  developmentLanguage: zh-Hans
+  generateEmptyDirectories: true
+  groupSortPosition: top
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    CODE_SIGN_STYLE: Automatic
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+    IPHONEOS_DEPLOYMENT_TARGET: "17.0"
+    CLANG_ENABLE_MODULES: YES
+    ENABLE_MODULE_VERIFIER: NO
+targets:
+  SUSECampusLogin:
+    type: application
+    platform: iOS
+    sources:
+      - path: SUSECampusLogin
+        excludes:
+          - "Resources/Info.plist"
+    settings:
+      base:
+        PRODUCT_NAME: SUSECampusLogin
+        PRODUCT_BUNDLE_IDENTIFIER: io.github.themingverse.susecampuslogin
+        INFOPLIST_FILE: SUSECampusLogin/Resources/Info.plist
+        GENERATE_INFOPLIST_FILE: NO
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        TARGETED_DEVICE_FAMILY: "1"
+        SUPPORTS_MACCATALYST: NO
+        SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD: NO
+        SWIFT_EMIT_LOC_STRINGS: YES
+    dependencies:
+      - sdk: Network.framework
+      - sdk: Security.framework
+  SUSECampusLoginTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: SUSECampusLoginTests
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.github.themingverse.susecampuslogin.tests
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_HOST: $(BUILT_PRODUCTS_DIR)/SUSECampusLogin.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/SUSECampusLogin
+        BUNDLE_LOADER: $(TEST_HOST)
+    dependencies:
+      - target: SUSECampusLogin
+schemes:
+  SUSECampusLogin:
+    build:
+      targets:
+        SUSECampusLogin: all
+        SUSECampusLoginTests: [test]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      gatherCoverageData: true
+      targets:
+        - SUSECampusLoginTests
+    profile:
+      config: Release
+    archive:
+      config: Release
